@@ -6,6 +6,8 @@ Visualizzatore interattivo di automi cellulari 1D con tutte le 256 regole di Wol
 
 ![Screenshot](screenshot.png)
 
+<img src="Stephen-Wolfram-1.jpg" alt="Stephen Wolfram" width="150" align="right" style="border-radius: 50%; margin-left: 20px;">
+
 ## Cosa sono gli Automi Cellulari?
 
 Un **automa cellulare** (AC) è un modello computazionale discreto composto da una griglia di celle, ciascuna in uno di un numero finito di stati. Ad ogni passo temporale, ogni cella aggiorna il proprio stato secondo una regola fissa che considera il suo stato attuale e gli stati dei suoi vicini.

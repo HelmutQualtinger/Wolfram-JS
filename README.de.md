@@ -6,6 +6,8 @@ Interaktiver 1D-Zellulärer-Automaten-Visualisierer mit allen 256 Wolfram-Regeln
 
 ![Screenshot](screenshot.png)
 
+<img src="Stephen-Wolfram-1.jpg" alt="Stephen Wolfram" width="150" align="right" style="border-radius: 50%; margin-left: 20px;">
+
 ## Was sind Zelluläre Automaten?
 
 Ein **zellulärer Automat** (ZA) ist ein diskretes Berechnungsmodell, bestehend aus einem Gitter von Zellen, die jeweils einen von endlich vielen Zuständen annehmen. In jedem Zeitschritt aktualisiert jede Zelle ihren Zustand nach einer festen Regel, die den aktuellen Zustand und die Zustände der Nachbarn berücksichtigt.

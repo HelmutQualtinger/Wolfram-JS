@@ -6,6 +6,8 @@ Interactive 1D cellular automaton visualizer implementing all 256 Wolfram rules.
 
 ![Screenshot](screenshot.png)
 
+<img src="Stephen-Wolfram-1.jpg" alt="Stephen Wolfram" width="150" align="right" style="border-radius: 50%; margin-left: 20px;">
+
 ## What are Cellular Automata?
 
 A **cellular automaton** (CA) is a discrete computational model consisting of a grid of cells, each in one of a finite number of states. At each time step, every cell updates its state based on a fixed rule that considers its current state and the states of its neighbors.
