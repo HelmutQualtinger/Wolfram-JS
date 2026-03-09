@@ -4,6 +4,8 @@
 
 Interactive 1D cellular automaton visualizer implementing all 256 Wolfram rules.
 
+**[Live Demo](https://helmutqualtinger.github.io/Wolfram-JS/)**
+
 ![Screenshot](screenshot.png)
 
 <img src="Stephen-Wolfram-1.jpg" alt="Stephen Wolfram" width="150" align="right" style="border-radius: 50%; margin-left: 20px;">

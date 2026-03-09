@@ -4,6 +4,8 @@
 
 Visualizzatore interattivo di automi cellulari 1D con tutte le 256 regole di Wolfram.
 
+**[Live Demo](https://helmutqualtinger.github.io/Wolfram-JS/)**
+
 ![Screenshot](screenshot.png)
 
 <img src="Stephen-Wolfram-1.jpg" alt="Stephen Wolfram" width="150" align="right" style="border-radius: 50%; margin-left: 20px;">

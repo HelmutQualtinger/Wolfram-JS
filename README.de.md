@@ -4,6 +4,8 @@
 
 Interaktiver 1D-Zellulärer-Automaten-Visualisierer mit allen 256 Wolfram-Regeln.
 
+**[Live Demo](https://helmutqualtinger.github.io/Wolfram-JS/)**
+
 ![Screenshot](screenshot.png)
 
 <img src="Stephen-Wolfram-1.jpg" alt="Stephen Wolfram" width="150" align="right" style="border-radius: 50%; margin-left: 20px;">
