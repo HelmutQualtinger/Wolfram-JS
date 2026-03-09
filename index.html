@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eindimensionale Zelluläre Automaten</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding: 0;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            margin: 0;
+            background: white;
+            border-radius: 0;
+            box-shadow: none;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+        }
+
+        .header h1 {
+            font-size: 14px;
+            margin-bottom: 0px;
+        }
+
+        .header p {
+            margin: 0;
+        }
+
+        .controls {
+            padding: 10px 15px;
+            background: #f9f9f9;
+            border-bottom: 1px solid #eee;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        label {
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 0;
+            color: #333;
+        }
+
+        input[type="number"],
+        input[type="range"] {
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        input[type="range"] {
+            padding: 0;
+            height: 5px;
+        }
+
+        button {
+            padding: 4px 10px;
+            border: none;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+
+        .btn-secondary {
+            background: #eee;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #ddd;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .canvas-container {
+            padding: 0;
+            background: white;
+            position: relative;
+            overflow: hidden;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .info {
+            padding: 8px 15px;
+            background: #f0f4ff;
+            border-top: 1px solid #e0e7ff;
+            font-size: 12px;
+            color: #666;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .rule-binary {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin-top: 5px;
+            padding: 8px;
+            background: white;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+        }
+
+        .color-legend {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+        }
+
+        .legend-color {
+            width: 24px;
+            height: 24px;
+            border: 1px solid #ccc;
+            border-radius: 2px;
+        }
+
+        .rule-editor {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 6px;
+            margin-top: 5px;
+        }
+
+        .rule-editor.visible {
+            display: grid;
+        }
+
+        #toggleRuleEditor {
+            font-size: 11px;
+            padding: 3px 6px;
+        }
+
+        .rule-pattern {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .rule-pattern:hover {
+            border-color: #667eea;
+            background: #f9f9ff;
+        }
+
+        .rule-pattern.active {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .pattern-cells {
+            display: flex;
+            gap: 3px;
+        }
+
+        .pattern-cell {
+            width: 18px;
+            height: 18px;
+            border: 1px solid #999;
+            border-radius: 1px;
+            background: white;
+        }
+
+        .pattern-cell.alive {
+            background: #667eea;
+        }
+
+        .pattern-result {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+        }
+
+        .pattern-arrow {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .result-cell {
+            width: 16px;
+            height: 16px;
+            border: 1px solid #999;
+            border-radius: 1px;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .result-cell.alive {
+            background: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>Eindimensionale Zelluläre Automaten</h1>
+                    <p style="font-size: 12px; opacity: 0.9; margin: 0;">Wolfram Rule System - Klick auf Zellen zum Bearbeiten</p>
+                </div>
+                <div style="font-size: 14px; font-weight: 600;">
+                    Rule <span id="ruleNumberDisplay">30</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-group" style="flex-direction: row; align-items: center; gap: 5px;">
+                <label for="rule" style="margin-bottom: 0;">Rule:</label>
+                <input type="number" id="rule" min="1" max="100" value="30" style="width: 60px;">
+            </div>
+
+            <div style="grid-column: 1 / -1;">
+                <button class="btn-secondary" id="toggleRuleEditor">▼ Regel-Editor</button>
+                <div class="rule-editor" id="ruleEditor"></div>
+            </div>
+
+            <div class="control-group">
+                <label for="speed">Speed: <span id="speedValue">50</span></label>
+                <input type="range" id="speed" min="0" max="100" value="50" step="1">
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" id="startBtn">Start</button>
+                <button class="btn-secondary" id="stopBtn" disabled>Stop</button>
+                <button class="btn-secondary" id="stepBtn">→ Step</button>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-danger" id="resetBtn">Erste Zeile zurücksetzen</button>
+                <button class="btn-secondary" id="clearBtn">Alles löschen</button>
+            </div>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="canvas"></canvas>
+        </div>
+
+        <div class="info">
+            <div style="display: flex; gap: 20px; align-items: center;">
+                <span><strong>Gen:</strong> <span id="generation">0</span></span>
+                <span><strong>Zellen:</strong> <span id="cellCount">0</span></span>
+                <span><strong>Status:</strong> <span id="status">Gestoppt</span></span>
+            </div>
+            <div>
+                <strong>Rule:</strong> <span id="ruleBinary" style="font-family: monospace; font-size: 11px;">-</span>
+            </div>
+            <div>
+                <strong>Farben:</strong>
+                <div class="color-legend" id="colorLegend" style="margin-top: 3px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const cellSize = 12;
+        const padding = 20;
+        let isRunning = false;
+        let animationId = null;
+
+        // CA state
+        let generation = 0;
+        let grid = [];
+        let rules = {};
+
+        // Initialize canvas
+        function resizeCanvas() {
+            const container = document.querySelector('.canvas-container');
+            canvas.width = Math.floor(container.clientWidth / cellSize) * cellSize;
+            canvas.height = Math.floor(container.clientHeight / cellSize) * cellSize;
+            initializeGrid();
+        }
+
+        function initializeGrid() {
+            const cols = Math.floor(canvas.width / cellSize);
+            grid = [];
+            generation = 0;
+
+            // Create first generation with middle cell on
+            const firstGen = new Array(cols).fill(0);
+            firstGen[Math.floor(cols / 2)] = 1;
+            grid.push(firstGen);
+        }
+
+        // Generate rule lookup table
+        function setRule(ruleNumber) {
+            rules = {};
+            for (let i = 0; i < 8; i++) {
+                const binary = i.toString(2).padStart(3, '0');
+                rules[binary] = (ruleNumber >> i) & 1;
+            }
+            updateRuleDisplay(ruleNumber);
+            updateRuleEditor(ruleNumber);
+        }
+
+        // Calculate rule number from rules object
+        function getRuleNumber() {
+            let ruleNumber = 0;
+            for (let i = 0; i < 8; i++) {
+                if (rules[i.toString(2).padStart(3, '0')] === 1) {
+                    ruleNumber |= (1 << i);
+                }
+            }
+            return ruleNumber;
+        }
+
+        // Update rule editor UI
+        function updateRuleEditor(ruleNumber) {
+            for (let i = 0; i < 8; i++) {
+                const binary = i.toString(2).padStart(3, '0');
+                const output = (ruleNumber >> i) & 1;
+                const element = document.querySelector(`[data-pattern="${binary}"]`);
+                if (element) {
+                    if (output === 1) {
+                        element.classList.add('active');
+                        element.querySelector('.result-cell').classList.add('alive');
+                    } else {
+                        element.classList.remove('active');
+                        element.querySelector('.result-cell').classList.remove('alive');
+                    }
+                }
+            }
+        }
+
+        function updateRuleDisplay(ruleNumber) {
+            const ruleBinary = document.getElementById('ruleBinary');
+            ruleBinary.textContent = ruleNumber.toString(2).padStart(8, '0');
+        }
+
+        // Calculate next generation
+        function nextGeneration() {
+            const current = grid[grid.length - 1];
+            const cols = current.length;
+            const next = new Array(cols).fill(0);
+
+            for (let i = 0; i < cols; i++) {
+                const left = current[(i - 1 + cols) % cols];
+                const center = current[i];
+                const right = current[(i + 1) % cols];
+
+                const pattern = '' + left + center + right;
+                next[i] = rules[pattern];
+            }
+
+            grid.push(next);
+            generation++;
+            updateInfo();
+        }
+
+        // Get color based on neighbor count (Red to Blue colorscale)
+        function getColorByNeighbors(neighbors) {
+            const colors = [
+                '#8B0000',  // 0 neighbors - dark red
+                '#C41E3A',  // 1 neighbor - red
+                '#DC143C',  // 2 neighbors - crimson red
+                '#FF6347',  // 3 neighbors - tomato
+                '#FF8C00',  // 4 neighbors - orange
+                '#BA55D3',  // 5 neighbors - medium orchid/purple
+                '#4169E1',  // 6 neighbors - royal blue
+                '#1E90FF',  // 7 neighbors - dodger blue
+                '#0047AB',  // 8 neighbors - cobalt blue
+            ];
+            return colors[Math.min(neighbors, colors.length - 1)];
+        }
+
+        // Render grid to canvas
+        function render() {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Always show first row at top
+            const firstGen = grid[0];
+            for (let col = 0; col < firstGen.length; col++) {
+                if (firstGen[col] === 1) {
+                    const nextGen = grid.length > 1 ? grid[1] : null;
+                    let neighborCount = 0;
+
+                    if (nextGen) {
+                        neighborCount += nextGen[(col - 1 + nextGen.length) % nextGen.length];
+                        neighborCount += nextGen[col];
+                        neighborCount += nextGen[(col + 1) % nextGen.length];
+                    }
+
+                    ctx.fillStyle = getColorByNeighbors(neighborCount);
+                    ctx.fillRect(col * cellSize, 0, cellSize - 1, cellSize - 1);
+                }
+            }
+
+            // Highlight first row
+            ctx.strokeStyle = '#ff6b6b';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(0, 0, canvas.width, cellSize);
+
+            // Show remaining rows below
+            const availableHeight = canvas.height - cellSize;
+            const maxRows = Math.floor(availableHeight / cellSize);
+            const startRow = Math.max(1, grid.length - maxRows);
+            let displayRow = 1;
+
+            for (let row = startRow; row < grid.length; row++) {
+                const gen = grid[row];
+                const y = cellSize + (displayRow - 1) * cellSize;
+                const prevGen = row > 0 ? grid[row - 1] : null;
+                const nextGen = row < grid.length - 1 ? grid[row + 1] : null;
+
+                for (let col = 0; col < gen.length; col++) {
+                    if (gen[col] === 1) {
+                        let neighborCount = 0;
+
+                        if (prevGen) {
+                            neighborCount += prevGen[(col - 1 + prevGen.length) % prevGen.length];
+                            neighborCount += prevGen[col];
+                            neighborCount += prevGen[(col + 1) % prevGen.length];
+                        }
+
+                        neighborCount += gen[(col - 1 + gen.length) % gen.length];
+                        neighborCount += gen[(col + 1) % gen.length];
+
+                        if (nextGen) {
+                            neighborCount += nextGen[(col - 1 + nextGen.length) % nextGen.length];
+                            neighborCount += nextGen[col];
+                            neighborCount += nextGen[(col + 1) % nextGen.length];
+                        }
+
+                        ctx.fillStyle = getColorByNeighbors(neighborCount);
+                        ctx.fillRect(col * cellSize, y, cellSize - 1, cellSize - 1);
+                    }
+                }
+                displayRow++;
+            }
+
+            // Draw grid
+            ctx.strokeStyle = '#ccc';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= Math.floor(canvas.width / cellSize); i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * cellSize, 0);
+                ctx.lineTo(i * cellSize, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i <= Math.floor(canvas.height / cellSize); i++) {
+                ctx.beginPath();
+                ctx.moveTo(0, i * cellSize);
+                ctx.lineTo(canvas.width, i * cellSize);
+                ctx.stroke();
+            }
+        }
+
+        function updateInfo() {
+            document.getElementById('generation').textContent = generation;
+
+            let liveCount = 0;
+            if (grid.length > 0) {
+                liveCount = grid[grid.length - 1].reduce((a, b) => a + b, 0);
+            }
+            document.getElementById('cellCount').textContent = liveCount;
+        }
+
+        function animate() {
+            if (isRunning) {
+                nextGeneration();
+                render();
+                const speedValue = parseInt(document.getElementById('speed').value);
+                // Convert 0-100 to delay in ms: 0=1000ms (slow), 100=10ms (fast)
+                const delay = Math.max(10, (101 - speedValue) * 10);
+                animationId = setTimeout(animate, delay);
+            }
+        }
+
+        // Event listeners
+        document.getElementById('startBtn').addEventListener('click', () => {
+            isRunning = true;
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            document.getElementById('status').textContent = 'Läuft...';
+            animate();
+        });
+
+        document.getElementById('stopBtn').addEventListener('click', () => {
+            isRunning = false;
+            clearTimeout(animationId);
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            document.getElementById('status').textContent = 'Gestoppt';
+        });
+
+        document.getElementById('stepBtn').addEventListener('click', () => {
+            if (!isRunning) {
+                nextGeneration();
+                render();
+            }
+        });
+
+        document.getElementById('rule').addEventListener('change', (e) => {
+            let ruleNum = parseInt(e.target.value);
+            if (isNaN(ruleNum)) ruleNum = 30;
+            ruleNum = Math.max(1, Math.min(100, ruleNum));
+
+            document.getElementById('rule').value = ruleNum;
+            document.getElementById('ruleNumberDisplay').textContent = ruleNum;
+            setRule(ruleNum);
+            render();
+        });
+
+        document.getElementById('speed').addEventListener('input', (e) => {
+            const speed = parseInt(e.target.value);
+            document.getElementById('speedValue').textContent = speed;
+        });
+
+        document.getElementById('toggleRuleEditor').addEventListener('click', () => {
+            const editor = document.getElementById('ruleEditor');
+            const btn = document.getElementById('toggleRuleEditor');
+            editor.classList.toggle('visible');
+            btn.textContent = editor.classList.contains('visible') ? '▲ Regel-Editor' : '▼ Regel-Editor';
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            grid = [grid[0]];
+            generation = 1;
+            updateInfo();
+            render();
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            isRunning = false;
+            clearTimeout(animationId);
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            document.getElementById('status').textContent = 'Gestoppt';
+
+            initializeGrid();
+            setRule(parseInt(document.getElementById('rule').value));
+            updateInfo();
+            render();
+        });
+
+        // Click to toggle cells in last generation only
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const col = Math.floor(x / cellSize);
+            const row = Math.floor(y / cellSize);
+
+            // Calculate which row is visible on screen
+            const visibleRows = Math.min(grid.length, Math.floor(canvas.height / cellSize));
+            const lastVisibleRow = visibleRows - 1;
+
+            // Only allow editing the last row (most recent generation)
+            if (row === lastVisibleRow && col >= 0 && col < grid[grid.length - 1].length) {
+                grid[grid.length - 1][col] = grid[grid.length - 1][col] ? 0 : 1;
+
+                updateInfo();
+                render();
+            }
+        });
+
+        // Generate rule editor
+        function generateRuleEditor() {
+            const editor = document.getElementById('ruleEditor');
+            editor.innerHTML = '';
+
+            for (let i = 0; i < 8; i++) {
+                const binary = i.toString(2).padStart(3, '0');
+                const output = rules[binary];
+
+                const pattern = document.createElement('div');
+                pattern.className = `rule-pattern ${output === 1 ? 'active' : ''}`;
+                pattern.dataset.pattern = binary;
+
+                const cells = document.createElement('div');
+                cells.className = 'pattern-cells';
+
+                for (let j = 0; j < 3; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = `pattern-cell ${binary[j] === '1' ? 'alive' : ''}`;
+                    cells.appendChild(cell);
+                }
+
+                const result = document.createElement('div');
+                result.className = 'pattern-result';
+                result.innerHTML = `
+                    <span class="pattern-arrow">→</span>
+                    <div class="result-cell ${output === 1 ? 'alive' : ''}"></div>
+                `;
+
+                pattern.appendChild(cells);
+                pattern.appendChild(result);
+
+                pattern.addEventListener('click', () => {
+                    // Toggle the output
+                    rules[binary] = rules[binary] ? 0 : 1;
+                    const newRuleNumber = getRuleNumber();
+                    document.getElementById('rule').value = newRuleNumber;
+                    updateRuleDisplay(newRuleNumber);
+                    generateRuleEditor();
+                    render();
+                });
+
+                editor.appendChild(pattern);
+            }
+        }
+
+        // Generate color legend
+        function generateLegend() {
+            const colors = [
+                '#8B0000',  // 0 neighbors - dark red
+                '#C41E3A',  // 1 neighbor - red
+                '#DC143C',  // 2 neighbors - crimson red
+                '#FF6347',  // 3 neighbors - tomato
+                '#FF8C00',  // 4 neighbors - orange
+                '#BA55D3',  // 5 neighbors - medium orchid/purple
+                '#4169E1',  // 6 neighbors - royal blue
+                '#1E90FF',  // 7 neighbors - dodger blue
+                '#0047AB',  // 8 neighbors - cobalt blue
+            ];
+
+            const legend = document.getElementById('colorLegend');
+            legend.innerHTML = '';
+
+            colors.forEach((color, index) => {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `
+                    <div class="legend-color" style="background-color: ${color};"></div>
+                    <span>${index}</span>
+                `;
+                legend.appendChild(item);
+            });
+        }
+
+        // Initialize
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        setRule(30);
+        generateRuleEditor();
+        generateLegend();
+        render();
+    </script>
+</body>
+</html>
